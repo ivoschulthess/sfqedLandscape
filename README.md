@@ -13,8 +13,8 @@ Contributions of new datasets, corrections, and improvements are highly encourag
 
 For readers unfamiliar with strong-field QED, we recommend the following reviews:
 
-- [*A Primer of Strong-Field Quantum Electrodynamics* (2026)](https://doi.org/10.1016/j.physrep.2023.01.003) – an accessible introduction.
-- [*Advances in QED with intense background fields* (2023)](https://doi.org/10.3390/physics8010026) – a comprehensive review.
+- [*A Primer of Strong-Field Quantum Electrodynamics* (2026)](https://doi.org/10.3390/physics8010026) – an accessible introduction.
+- [*Advances in QED with intense background fields* (2023)](https://doi.org/10.1016/j.physrep.2023.01.003) – a comprehensive review.
 
 
 
