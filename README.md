@@ -11,6 +11,13 @@ The repository was initiated following discussions at the [2026 SFQED Strategy W
 Contributions of new datasets, corrections, and improvements are highly encouraged. Experimental collaborations are particularly encouraged to contribute and maintain their official datasets. If you would like to contribute a new dataset, update an existing one, report an error, or suggest an improvement, please contact me by [email](mailto:ivo.schulthess@desy.de) or open an issue or submit a pull request on GitHub. 
 
 
+For readers unfamiliar with strong-field QED, we recommend the following reviews:
+
+- [*A Primer of Strong-Field Quantum Electrodynamics* (2026)](https://doi.org/10.1016/j.physrep.2023.01.003) – an accessible introduction.
+- [*Advances in QED with intense background fields* (2023)](https://doi.org/10.3390/physics8010026) – a comprehensive review.
+
+
+
 
 ## Available Landscapes
 
