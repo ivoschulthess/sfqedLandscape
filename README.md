@@ -12,6 +12,26 @@ Contributions of new datasets, corrections, and improvements are highly encourag
 
 
 
+## Available Landscapes
+
+---
+
+[<img align="right" width="350" src="plots/png/NCS_eta_vs_a0.png">](docs/NCS.md)
+
+### [Nonlinear Compton Scattering](docs/NCS.md)
+
+Nonlinear Compton scattering is the emission of a high-energy photon by an electron (or positron) interacting with an intense electromagnetic background field.
+
+---
+
+[<img align="right" width="350" src="plots/png/NBW_eta_vs_a0.png">](docs/NBW.md)
+
+### Nonlinear Breit-Wheeler Pair Production
+
+Nonlinear Breit–Wheeler pair production is the creation of an electron–positron pair from a high-energy photon interacting with an intense electromagnetic background field.
+
+
+
 ## Citation
 
 If you use this repository in your research, please cite the repository using the Zenodo DOI associated with the release you used.
