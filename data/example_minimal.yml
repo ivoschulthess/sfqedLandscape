@@ -1,0 +1,22 @@
+# example_minimal.yml
+#
+# minimal example of experimental data that are required
+# for example with all / optional data -> example_full.yml
+
+experiment: LUXE
+experiment_type: electron_laser
+
+process: nonlinear_compton
+
+datasets:
+  - label: LUXE 0
+    status: projection
+
+    parameters:
+      xi: [0.1, 5]
+      eta: [0.13, 0.19]
+
+    # some reference is required, does not have to be a DOI or arXiv number
+    references:
+      - doi: 10.1140/epjs/s11734-021-00249-z
+        arxiv: "2102.02032"

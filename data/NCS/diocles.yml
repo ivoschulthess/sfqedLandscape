@@ -1,0 +1,27 @@
+experiment: Diocles
+experiment_type: all_optical
+
+process: nonlinear_compton
+
+datasets:
+  - label: 'Diocles$^1$'
+    status: result
+
+    parameters:
+      xi: 0.4
+      eta: 0.0029
+
+    references:
+      - doi: 10.1103/PhysRevLett.110.155003
+        year: 2013
+
+  - label: 'Diocles$^2$'
+    status: result
+
+    parameters:
+      xi: [2,12]
+      eta: 0.0036
+
+    references:
+      - doi: 10.1038/nphoton.2017.100
+        year: 2017

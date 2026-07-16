@@ -1,0 +1,27 @@
+experiment: NA63
+experiment_type: crystal
+
+process: radiation_reaction
+
+beam:
+  particle: electron
+  energy_GeV: 178.2
+
+crystal:
+  material: Si
+  orientation: <111>
+  thickness_mm: {3.8, 10} 
+
+datasets:
+  - label: NA63
+    status: result
+
+    parameters:
+      xi: [0.7,7]
+      eta: [0.2, 2]
+      chi: 1.4
+
+    references:
+      - doi: 10.1038/s41467-018-03165-4
+        arxiv: "1704.01080"
+        year: 2018

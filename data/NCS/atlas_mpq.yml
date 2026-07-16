@@ -1,0 +1,26 @@
+experiment: ATLAS-MPQ
+experiment_type: all_optical
+
+process: nonlinear_compton
+
+beam:
+  particle: wakefield_electron
+  energy_GeV: [0.017,0.05]
+
+laser:
+  wavelength_nm: 800
+  
+geometry:
+  collision_angle_deg: 3.7
+  
+datasets:
+  - label: ATLAS-MPQ
+    status: result
+
+    parameters:
+      xi: 0.83
+      eta: [0.000202, 0.000593]
+
+    references:
+      - doi: 10.1103/PhysRevLett.114.195003
+        year: 2015

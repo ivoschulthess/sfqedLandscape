@@ -1,0 +1,16 @@
+experiment: BNL-ATF
+experiment_type: all_optical
+
+process: nonlinear_compton
+
+datasets:
+  - label: BNL-ATF
+    status: result
+
+    parameters:
+      xi: 0.6
+      eta: 0.00075
+
+    references:
+      - doi: 10.1103/PhysRevSTAB.18.060702
+        year: 2015

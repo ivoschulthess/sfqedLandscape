@@ -1,0 +1,52 @@
+experiment: E-320
+experiment_type: electron_laser
+
+process: nonlinear_compton
+
+beam:
+  particle: electron
+  energy_GeV: 10
+
+laser:
+  wavelength_nm: 800
+  polarization: linear
+
+geometry:
+  collision_angle_deg: 30
+
+datasets:
+  - label: E320
+    status: projection
+
+    parameters:
+      xi: 2
+      eta: 0.15
+
+    references:
+      - doi: 10.1088/1367-2630/ac4283
+        arxiv: "2107.03697"
+        year: 2022
+
+
+  - label: E320-II
+    status: projection
+
+    parameters:
+      xi: 16
+      eta: 0.15
+
+    references:
+      - presentation: FACET-II Science Workshop 2019
+        year: 2019
+
+    
+  # - label: E320-III
+  #   status: projection
+
+  #   parameters:
+  #     xi: [0.1, 5]
+  #     eta: 0.15
+
+  #   references:
+  #     - presentation: FACET-II Science Workshop 2019
+  #       year: 2019

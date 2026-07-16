@@ -1,0 +1,48 @@
+# example_full.yml
+#
+# full example of required and optional experimental data
+# for example with required data only -> example_minimal.yml
+
+
+experiment: LUXE
+experiment_type: electron_laser
+
+process: nonlinear_compton
+
+beam:
+  particle: electron
+  energy_GeV: 16.5
+
+laser:
+  wavelength_nm: 800
+  polarization: linear
+
+geometry:
+  collision_angle_deg: 17.2
+
+datasets:
+  - label: LUXE 0
+    status: projection
+
+    parameters:
+      xi: [0.1, 5]
+      eta: [0.13, 0.19]
+
+    references:
+      - doi: 10.1140/epjs/s11734-021-00249-z
+        arxiv: "2102.02032"
+      - doi: 10.1140/epjs/s11734-024-01164-9
+        arxiv: "2308.00515"
+
+  - label: LUXE 1
+    status: projection
+
+    parameters:
+      xi: [5, 20]
+      eta: [0.13, 0.19]
+
+    references:
+      - doi: 10.1140/epjs/s11734-021-00249-z
+        arxiv: "2102.02032"
+      - doi: 10.1140/epjs/s11734-024-01164-9
+        arxiv: "2308.00515"

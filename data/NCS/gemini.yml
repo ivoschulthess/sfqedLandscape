@@ -1,0 +1,32 @@
+experiment: Gemini
+experiment_type: all_optical
+
+process: nonlinear_compton    
+
+datasets:
+  - label: 'Gemini$^1$'
+    status: result
+
+    parameters:
+      xi: [1,2]
+      eta: 0.006
+
+    references:
+      - doi: 10.1103/PhysRevLett.113.224801
+        arxiv: "1407.6980"
+        year: 2014
+
+  - label: 'Gemini$^2$'
+    status: result
+
+    parameters:
+      xi: 24.7
+      eta: [0.003, 0.02]
+
+    references:
+      - doi: 10.1103/ PhysRevX.8.011020
+        arxiv: "1707.06821"
+        year: 2018
+      - doi: 10.1103/PhysRevX.8.031004
+        arxiv: "1709.01861"
+        year: 2018

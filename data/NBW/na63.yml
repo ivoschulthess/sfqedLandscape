@@ -1,0 +1,31 @@
+experiment: NA63
+experiment_type: crystal
+
+process: nonlinear_breit_wheeler
+# nonlinear trident in a regime well-approximated as having nonlinear Breit-Wheeler pair-creation as the second of two steps
+
+beam:
+  particle: electron
+  energy_GeV: 200
+
+crystal:
+  material: Ge
+  orientation: <110>
+  thickness_mm: 0.4 
+
+datasets:
+  - label: NA63
+    status: result
+
+    parameters:
+      xi: 18.166
+      eta: [0, 0.132]
+      chi: [0, 2.4]
+
+    references:
+      - doi: 10.1103/PhysRevLett.130.071601
+        arxiv: "2211.02390"
+        year: 2023
+      - doi: 10.1103/PhysRevD.108.052013
+        arxiv: "2307.03464"
+        year: 2023

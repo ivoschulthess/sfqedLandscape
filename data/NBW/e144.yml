@@ -1,0 +1,21 @@
+experiment: E-144
+experiment_type: electron_laser
+
+process: nonlinear_breit_wheeler
+# nonlinear trident in a regime well-approximated as having nonlinear Breit-Wheeler pair-creation as the second of two steps
+
+beam:
+  particle: electron
+  energy_GeV: 46.6
+
+datasets:
+  - label: E144
+    status: result
+
+    parameters:
+      xi: 0.36
+      eta: 0.83
+
+    references:
+      - doi: 10.1103/PhysRevD.60.092004
+        year: 1999
