@@ -130,7 +130,7 @@ def draw_ncs_regimes (ax: plt.Axes) -> None:
     _fill_between(ax, np.geomspace(0.3, 1.0), 1e-5, 100, color="lightblue", alpha=0.2)
     ax.text(0.55, 1.5, "Harmonics", fontsize=12, rotation=90, ha="center", bbox=dict(facecolor="lightblue", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(1, 10000), 1e-5, 100, color="yellow", alpha=0.1)
+    _fill_between(ax, np.geomspace(1, 10000), 1e-5, lambda xx: 137.0 ** 1.5 / xx, color="yellow", alpha=0.1)
     ax.text(30, 1.5, "Nonperturbative at\nsmall coupling", fontsize=12, ha="center", bbox=dict(facecolor="yellow", edgecolor="none", alpha=0.7))
 
     _fill_between(ax, np.geomspace(0.001, 10000), lambda xx: 137.0 ** 1.5 / xx, 100, color="red", alpha=0.1)
