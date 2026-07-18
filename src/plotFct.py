@@ -153,8 +153,8 @@ def draw_nbw_regimes (ax: plt.Axes) -> None:
     
     _fill_between(ax, np.geomspace(3, 10000), lambda xx: 0.5 / xx, lambda xx: 0.001 / xx, color="green", alpha=0.1)
     ax.text(10, 0.005, "Non-analytic\npair creation", fontsize=12, ha="center", bbox=dict(facecolor="green", edgecolor="none", alpha=0.7))
-
-    _fill_between(ax, np.geomspace(0.5, 10000), lambda xx: 0.5 * (1 + xx**2), 1e-5, color="yellow", alpha=0.1)
+    
+    _fill_between(ax, np.geomspace(0.5, 10000), lambda xx: np.where(xx>3, np.maximum(1e-5, 0.5 / xx), 1e-5), lambda xx: np.minimum(0.5 * (1 + xx**2), 137.0 ** 1.5 / xx), color="yellow", alpha=0.1)
     ax.text(30, 1.5, "Nonperturbative at\nsmall coupling", fontsize=12, ha="center", bbox=dict(facecolor="yellow", edgecolor="none", alpha=0.7))
 
     _fill_between(ax, np.geomspace(0.001, 10000), lambda xx: 137.0 ** 1.5 / xx, 100, color="red", alpha=0.08)
