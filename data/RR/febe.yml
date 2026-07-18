@@ -1,0 +1,21 @@
+experiment: FEBE
+experiment_type: electron_laser
+
+process: radiation_reaction
+
+beam:
+  particle: electron
+  energy_GeV: 0.25
+
+datasets:
+  - label: FEBE
+    status: projection
+
+    parameters:
+      xi: 14.2
+      eta: 0.003
+      chi: 0.04
+
+    references:
+      - url: https://indico.desy.de/event/52809/
+        year: 2026
