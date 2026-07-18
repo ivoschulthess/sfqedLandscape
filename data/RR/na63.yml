@@ -17,7 +17,7 @@ datasets:
     status: result
 
     parameters:
-      xi: [0.7,7]
+      xi: [0.7, 7]
       eta: [0.2, 2]
       chi: 1.4
 

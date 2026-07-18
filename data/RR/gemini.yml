@@ -1,0 +1,20 @@
+experiment: Gemini
+experiment_type: all_optical
+
+process: radiation_reaction    
+
+datasets:
+  - label: 'Gemini$^2$'
+    status: result
+
+    parameters:
+      xi: 24.7
+      eta: [0.003, 0.02]
+
+    references:
+      - doi: 10.1103/ PhysRevX.8.011020
+        arxiv: "1707.06821"
+        year: 2018
+      - doi: 10.1103/PhysRevX.8.031004
+        arxiv: "1709.01861"
+        year: 2018
