@@ -1,0 +1,86 @@
+name: New dataset
+description: Propose a new measurement or projection.
+title: "[Dataset]: "
+labels:
+  - dataset
+
+body:
+
+  - type: input
+    id: experiment
+    attributes:
+      label: Experiment
+      placeholder: e.g. LUXE
+    validations:
+      required: true
+
+  - type: dropdown
+    id: process
+    attributes:
+      label: Process
+      options:
+        - Nonlinear Compton
+        - Nonlinear Breit-Wheeler
+        - Radiation Reaction
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Dataset type
+      options:
+        - Result
+        - Projection
+    validations:
+      required: true
+
+  - type: textarea
+    id: parameters
+    attributes:
+      label: Parameters
+      description: |
+        Please provide the parameter values (e.g. ξ/a0, χ, η)
+        or attach a YAML snippet.
+
+    validations:
+      required: true
+
+  - type: textarea
+    id: reference
+    attributes:
+      label: Reference
+      placeholder: DOI, arXiv, conference proceedings, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: assumptions
+    attributes:
+      label: Assumptions
+      description: Any assumptions needed to interpret the data?
+
+  - type: textarea
+    id: dataset_yaml
+    attributes:
+      label: Dataset YAML
+      description: |
+        Optional: If you are familiar with the repository data format,
+        paste the proposed dataset entry here. Otherwise, leave this field
+        empty and provide the information in the fields above.
+      placeholder: |
+        - label: Phase 1
+          status: projection
+          parameters:
+            xi: [1, 5]
+            eta: [0.1, 0.3]
+          references:
+            - doi: 11.2222/1234567890
+              arxiv: "xxxx.yyyyy"
+      render: yaml
+
+  - type: textarea
+    id: comments
+    attributes:
+      label: Additional comments

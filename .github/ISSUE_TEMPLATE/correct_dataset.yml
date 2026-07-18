@@ -1,0 +1,40 @@
+name: Data correction
+description: Report incorrect or outdated information.
+title: "[Correction]: "
+labels:
+  - correction
+
+body:
+
+  - type: input
+    id: experiment
+    attributes:
+      label: Experiment
+    validations:
+      required: true
+
+  - type: input
+    id: dataset
+    attributes:
+      label: Dataset or label
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is incorrect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: correction
+    attributes:
+      label: Proposed correction
+    validations:
+      required: true
+
+  - type: textarea
+    id: reference
+    attributes:
+      label: Supporting reference
