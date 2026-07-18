@@ -18,10 +18,7 @@ For readers unfamiliar with strong-field QED, we recommend the following reviews
 
 
 
-
 ## Available Landscapes
-
----
 
 [<img align="right" width="350" src="plots/png/NCS_eta_vs_a0.png">](docs/NCS.md)
 
@@ -51,6 +48,39 @@ Nonlinear Breit–Wheeler pair production is the creation of an electron–posit
 <br>
 <br>
 
+---
+
+[<img align="right" width="350" src="plots/png/RR_eta_vs_a0.png">](docs/RR.md)
+
+### [Radiation Reaction](docs/RR.md)
+
+Radiation reaction is the modification of the motion and radiation emitted by a charged particle due to the recoil associated with its own electromagnetic emission in an intense electromagnetic background field.
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<!--
+
+---
+
+[<img align="right" width="350" src="plots/png/VB_eta_vs_a0.png">](docs/VB.md)
+
+### [Vacuum Birefringence](docs/VB.md)
+
+Vacuum birefringence is the polarization-dependent propagation of light through the quantum vacuum induced by a strong external electromagnetic field, causing the vacuum to behave as a birefringent medium.
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+-->
 
 ## Citation
 
