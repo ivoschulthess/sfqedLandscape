@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21255883.svg)](https://doi.org/10.5281/zenodo.21255883)
 [![Release](https://img.shields.io/github/v/release/ivoschulthess/SFQEDLandscape)](https://github.com/ivoschulthess/SFQEDLandscape/releases)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ivoschulthess/sfqedLandscape/HEAD?labpath=notebooks)
 
 The **SFQED Landscape Repository** is an open, community-driven resource that collects measurements, projections, and metadata from strong-field QED experiments and facilities in a common format. It provides Python tools for generating consistent overview plots of the current and future experimental landscape, with support for different strong-field QED parameterizations (e.g. $a_0$ / $\xi$, $\chi$, and $\eta$).
 
