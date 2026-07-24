@@ -324,6 +324,9 @@ def draw_pw_class_projections (ax: plt.Axes) -> None:
         (1000, 0.015, "VULCAN", 0, "0.7"),
         (3000, 0.04, "SEL", 0, "0.5"),
         (3000, 0.02, "XCELS", 0, "0.7"),
+        # XCELS not shown for now since status unknown 
+        # and no response from corresponding authors of XCELS paper
+        # (3000, 0.02, "XCELS"),
     ]
     
     for x, y, text, rot, color in labels:
