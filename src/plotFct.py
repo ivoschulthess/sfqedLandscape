@@ -10,8 +10,29 @@ import style as stl
 # CONFIGURATION PARAMETERS #
 ############################
 
-XMIN, XMAX = 0.1, 10000.0
-YMIN, YMAX = 0.0003, 10.0
+AXES = {
+    "a0": {
+        "parameter": "xi",
+        "label": r"$a_0$",
+        "scale": "log",
+        "min": 0.1,
+        "max": 10000.0,
+    },
+    "xi": {
+        "parameter": "xi",
+        "label": r"$\xi$",
+        "scale": "log",
+        "min": 0.1,
+        "max": 10000.0,
+    },
+    "eta": {
+        "parameter": "eta",
+        "label": r"$\eta$",
+        "scale": "log",
+        "min": 0.0003,
+        "max": 10.0,
+    },
+}
 
 
 ####################
@@ -46,14 +67,17 @@ def _load_experiment (fName: str) -> dict:
 # FIGURE SETUP #
 ################
 
-def setup_axes(ax: plt.Axes, title: str='') -> None:
+def setup_axes(ax: plt.Axes, title: str='', xaxis: str='a0', yaxis: str='eta') -> None:
+
+    X = AXES[xaxis]
+    Y = AXES[yaxis]
     
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_xlim(XMIN, XMAX)
-    ax.set_ylim(YMIN, YMAX)
-    ax.set_xlabel(r"$a_0$ / $\xi$", fontsize=16)
-    ax.set_ylabel(r"$\eta$", fontsize=16)
+    ax.set_xscale(X['scale'])
+    ax.set_yscale(Y['scale'])
+    ax.set_xlim(X['min'], X['max'])
+    ax.set_ylim(Y['min'], Y['max'])
+    ax.set_xlabel(X['label'], fontsize=16)
+    ax.set_ylabel(Y['label'], fontsize=16)
 
     if title!='':
         ax.set_title(title, fontsize=20)
@@ -73,10 +97,10 @@ def setup_axes(ax: plt.Axes, title: str='') -> None:
         + _grid_values(2, 10, 1)
     )
     for x in xgrid:
-        if XMIN <= x <= XMAX:
+        if X['min'] <= x <= X['max']:
             ax.axvline(x, color="0.88", lw=0.4, zorder=0)
     for y in ygrid:
-        if YMIN <= y <= YMAX:
+        if Y['min'] <= y <= Y['max']:
             ax.axhline(y, color="0.88", lw=0.4, zorder=0)
             
 def draw_common_reference_lines(ax: plt.Axes) -> None:
