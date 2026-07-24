@@ -19,8 +19,8 @@ datasets:
 
     parameters:
       xi: 18.166
-      eta: [0.0001, 0.132]
-      chi: [0.0018, 2.4]
+      eta: 0.132
+      chi: 2.4
 
     references:
       - doi: 10.1103/PhysRevLett.130.071601
