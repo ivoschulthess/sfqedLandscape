@@ -314,20 +314,18 @@ def draw_pw_class_projections (ax: plt.Axes) -> None:
     ax.text(6500, 0.0257, '1-5 GeV\nat 20°', rotation=90, linespacing=0.9, ha="center", va="center")
     
     labels = [
-        (100, 0.025, "CALA", 0, "0.5"),
-        (100, 0.040, "CoReLS", 0, "0.5"),
-        (100, 0.016, "ZEUS", 0, "0.5"),
-        (300, 0.034, "Apollon", 0, "0.5"),
-        (300, 0.018, "ELI", 0, "0.5"),
-        (1000, 0.026, "NSF-OPAL", 0, "0.7"),
-        (1000, 0.045, "SULF", 0, "0.5"),
-        (1000, 0.015, "VULCAN", 0, "0.7"),
-        (3000, 0.04, "SEL", 0, "0.5"),
-        (3000, 0.02, "XCELS", 0, "0.7"),
+        (89, 0.0257, "CALA"),
+        (89, 0.0440, "CoReLS"),
+        (89, 0.0150, "ZEUS"),
+        (281, 0.0385, "Apollon"),
+        (281, 0.0172, "ELI"),
+        (889, 0.0440, "SULF"),
+        (2811, 0.0440, "SEL"),
+        (1581, 0.0257, "NSF-OPAL"),
+        (1581, 0.0150, "VULCAN 20-20"),
         # XCELS not shown for now since status unknown 
         # and no response from corresponding authors of XCELS paper
         # (3000, 0.02, "XCELS"),
     ]
-    
-    for x, y, text, rot, color in labels:
-        ax.text(x, y, text, fontsize=11, color=color, rotation=rot, ha="center", va="center")
+    for x, y, text in labels:
+        ax.text(x, y, text, fontsize=11, color="0.5", ha="center", va="center")
