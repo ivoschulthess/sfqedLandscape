@@ -311,6 +311,8 @@ def draw_pw_class_projections (ax: plt.Axes) -> None:
     style = {'color': '0.65', 'facealpha': 0.1, 'linestyle': '--'}
     plot_rectangle(ax, (500, 5000), (0.0115, 0.0575), label='Multi-10PW Class', **style)
 
+    ax.text(6500, 0.0257, '1-5 GeV\nat 20°', rotation=90, linespacing=0.9, ha="center", va="center")
+    
     labels = [
         (100, 0.025, "CALA", 0, "0.5"),
         (100, 0.040, "CoReLS", 0, "0.5"),
