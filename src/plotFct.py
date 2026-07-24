@@ -40,6 +40,7 @@ def _load_experiment (fName: str) -> dict:
         data = yaml.safe_load(file)
 
     return data
+
     
 ################
 # FIGURE SETUP #
@@ -88,7 +89,7 @@ def draw_common_reference_lines(ax: plt.Axes) -> None:
     ax.axhline(1, color="0.2", lw=1.0, zorder=0)
 
     # diagonal reference lines
-    x = np.geomspace(0.001, 10000, 500)
+    x = np.geomspace(0.001, 10000, 1000)
     _plot_segment(ax, x, lambda xx: 137.0 ** 1.5 / xx, color="0.2", ls="--", lw=1.0, zorder=0)
     for c, color, lw in [(0.001, "0.6", 1.0), 
                          (0.01, "0.6", 1.0), 
@@ -124,40 +125,41 @@ def draw_common_labels(ax: plt.Axes, nlc: bool=False) -> None:
 
 def draw_ncs_regimes (ax: plt.Axes) -> None:
     
-    _fill_between(ax, np.geomspace(0.01, 0.3), 1e-4, 10, color="orange", alpha=0.1)
+    _fill_between(ax, np.geomspace(0.01, 0.3, 1000), 1e-4, 10, color="orange", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(0.18, 1.5, "Linear QED", fontsize=12, rotation=90, ha="center", bbox=dict(facecolor="orange", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(0.3, 1.0), 1e-5, 100, color="lightblue", alpha=0.2)
+    _fill_between(ax, np.geomspace(0.3, 1.0, 1000), 1e-5, 100, color="lightblue", edgecolor="none", linewidth=0, alpha=0.2)
     ax.text(0.55, 1.5, "Harmonics", fontsize=12, rotation=90, ha="center", bbox=dict(facecolor="lightblue", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(1, 10000), 1e-5, lambda xx: 137.0 ** 1.5 / xx, color="yellow", alpha=0.1)
+    _fill_between(ax, np.geomspace(1, 10000, 1000), 1e-5, lambda xx: 137.0 ** 1.5 / xx, color="yellow", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(30, 1.5, "Nonperturbative at\nsmall coupling", fontsize=12, ha="center", bbox=dict(facecolor="yellow", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(0.001, 10000), lambda xx: 137.0 ** 1.5 / xx, 100, color="red", alpha=0.1)
+    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: 137.0 ** 1.5 / xx, 100, color="red", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(2700, 3, "Fully non-\nperturbative", fontsize=12, ha="center", bbox=dict(facecolor="red", edgecolor="none", alpha=0.7))
 
 def draw_nbw_regimes (ax: plt.Axes) -> None:
 
-    _fill_between(ax, np.geomspace(0.001, 10000), lambda xx: 2 * (1 + xx**2), 100, color="orange", alpha=0.1)
+    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: 2 * (1 + xx**2), 100, color="orange", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(0.22, 6, "Linear QED", fontsize=12, ha="center", bbox=dict(facecolor="orange", edgecolor="none", alpha=0.7))
-    _plot_segment(ax, np.geomspace(0.001, 10000), lambda xx: 2 * (1 + xx**2), color="orange", ls="--", lw=1.2)
+    _plot_segment(ax, np.geomspace(0.001, 10000, 1000), lambda xx: 2 * (1 + xx**2), color="orange", ls="--", lw=1.2)
     ax.text(0.12, 2.8, r"$\eta=2(1+\xi^2)$", fontsize=12, color="orange")
 
-    _fill_between(ax, np.geomspace(0.001, 10000), lambda xx: 0.5 * (1 + xx**2), lambda xx: 2 * (1 + xx**2), color="lightblue", alpha=0.1)
+    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: 0.5 * (1 + xx**2), lambda xx: 2 * (1 + xx**2), color="lightblue", edgecolor="none", linewidth=0, alpha=0.1)
     for n in [2,3,4]:
-        _plot_segment(ax, np.geomspace(0.001, 10000), lambda xx, n=n: (2.0 / n) * (1 + xx**2), color="lightblue", ls="--", lw=1.2)
+        _plot_segment(ax, np.geomspace(0.001, 10000, 1000), lambda xx, n=n: (2.0 / n) * (1 + xx**2), color="lightblue", ls="--", lw=1.2)
     ax.text(1.15, 3, "Harmonics", fontsize=12, ha="center", bbox=dict(facecolor="lightblue", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(0.001, 0.5), 0.0001, lambda xx: 0.5 * (1 + xx**2), color="purple", alpha=0.1)
+    _fill_between(ax, np.geomspace(0.001, 0.5, 1000), 0.0001, lambda xx: 0.5 * (1 + xx**2), color="purple", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(0.225, 0.013, "Multiphoton\nperturbative", fontsize=12, ha="center", bbox=dict(facecolor="purple", edgecolor="none", alpha=0.7))
     
-    _fill_between(ax, np.geomspace(3, 10000), lambda xx: 0.5 / xx, lambda xx: 0.001 / xx, color="green", alpha=0.1)
+    _fill_between(ax, np.geomspace(3, 10000, 1000), lambda xx: 0.5 / xx, lambda xx: 0.001 / xx, color="green", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(10, 0.005, "Non-analytic\npair creation", fontsize=12, ha="center", bbox=dict(facecolor="green", edgecolor="none", alpha=0.7))
     
-    _fill_between(ax, np.geomspace(0.5, 10000), lambda xx: np.where(xx>3, np.maximum(1e-5, 0.5 / xx), 1e-5), lambda xx: np.minimum(0.5 * (1 + xx**2), 137.0 ** 1.5 / xx), color="yellow", alpha=0.1)
+    _fill_between(ax, np.geomspace(0.5, 10000, 1000), lambda xx: np.where(xx>3, np.maximum(1e-5, 0.5 / xx), 1e-5), lambda xx: np.minimum(0.5 * (1 + xx**2), 137.0 ** 1.5 / xx), color="yellow", edgecolor="none", linewidth=0, alpha=0.1)
+    _fill_between(ax, np.geomspace(3, 10000, 1000), 1e-5,  lambda xx: 0.001 / xx, color="yellow", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(30, 1.5, "Nonperturbative at\nsmall coupling", fontsize=12, ha="center", bbox=dict(facecolor="yellow", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(0.001, 10000), lambda xx: 137.0 ** 1.5 / xx, 100, color="red", alpha=0.08)
+    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: 137.0 ** 1.5 / xx, 100, color="red", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(2700, 3, "Fully non-\nperturbative", fontsize=12, ha="center", bbox=dict(facecolor="red", edgecolor="none", alpha=0.7))
 
 
