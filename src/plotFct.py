@@ -10,8 +10,29 @@ import style as stl
 # CONFIGURATION PARAMETERS #
 ############################
 
-XMIN, XMAX = 0.1, 10000.0
-YMIN, YMAX = 0.0003, 10.0
+AXES = {
+    "a0": {
+        "parameter": "xi",
+        "label": r"$a_0$",
+        "scale": "log",
+        "min": 0.1,
+        "max": 10000.0,
+    },
+    "xi": {
+        "parameter": "xi",
+        "label": r"$\xi$",
+        "scale": "log",
+        "min": 0.1,
+        "max": 10000.0,
+    },
+    "eta": {
+        "parameter": "eta",
+        "label": r"$\eta$",
+        "scale": "log",
+        "min": 0.0003,
+        "max": 10.0,
+    },
+}
 
 
 ####################
@@ -40,19 +61,23 @@ def _load_experiment (fName: str) -> dict:
         data = yaml.safe_load(file)
 
     return data
+
     
 ################
 # FIGURE SETUP #
 ################
 
-def setup_axes(ax: plt.Axes, title: str='') -> None:
+def setup_axes(ax: plt.Axes, title: str='', xaxis: str='a0', yaxis: str='eta') -> None:
+
+    X = AXES[xaxis]
+    Y = AXES[yaxis]
     
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_xlim(XMIN, XMAX)
-    ax.set_ylim(YMIN, YMAX)
-    ax.set_xlabel(r"$a_0$ / $\xi$", fontsize=16)
-    ax.set_ylabel(r"$\eta$", fontsize=16)
+    ax.set_xscale(X['scale'])
+    ax.set_yscale(Y['scale'])
+    ax.set_xlim(X['min'], X['max'])
+    ax.set_ylim(Y['min'], Y['max'])
+    ax.set_xlabel(X['label'], fontsize=16)
+    ax.set_ylabel(Y['label'], fontsize=16)
 
     if title!='':
         ax.set_title(title, fontsize=20)
@@ -72,10 +97,10 @@ def setup_axes(ax: plt.Axes, title: str='') -> None:
         + _grid_values(2, 10, 1)
     )
     for x in xgrid:
-        if XMIN <= x <= XMAX:
+        if X['min'] <= x <= X['max']:
             ax.axvline(x, color="0.88", lw=0.4, zorder=0)
     for y in ygrid:
-        if YMIN <= y <= YMAX:
+        if Y['min'] <= y <= Y['max']:
             ax.axhline(y, color="0.88", lw=0.4, zorder=0)
             
 def draw_common_reference_lines(ax: plt.Axes) -> None:
@@ -88,7 +113,7 @@ def draw_common_reference_lines(ax: plt.Axes) -> None:
     ax.axhline(1, color="0.2", lw=1.0, zorder=0)
 
     # diagonal reference lines
-    x = np.geomspace(0.001, 10000, 500)
+    x = np.geomspace(0.001, 10000, 1000)
     _plot_segment(ax, x, lambda xx: 137.0 ** 1.5 / xx, color="0.2", ls="--", lw=1.0, zorder=0)
     for c, color, lw in [(0.001, "0.6", 1.0), 
                          (0.01, "0.6", 1.0), 
@@ -124,40 +149,40 @@ def draw_common_labels(ax: plt.Axes, nlc: bool=False) -> None:
 
 def draw_ncs_regimes (ax: plt.Axes) -> None:
     
-    _fill_between(ax, np.geomspace(0.01, 0.3), 1e-4, 10, color="orange", alpha=0.1)
+    _fill_between(ax, np.geomspace(0.01, 0.3, 1000), 1e-4, 10, color="orange", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(0.18, 1.5, "Linear QED", fontsize=12, rotation=90, ha="center", bbox=dict(facecolor="orange", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(0.3, 1.0), 1e-5, 100, color="lightblue", alpha=0.2)
+    _fill_between(ax, np.geomspace(0.3, 1.0, 1000), 1e-5, 100, color="lightblue", edgecolor="none", linewidth=0, alpha=0.2)
     ax.text(0.55, 1.5, "Harmonics", fontsize=12, rotation=90, ha="center", bbox=dict(facecolor="lightblue", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(1, 10000), 1e-5, lambda xx: 137.0 ** 1.5 / xx, color="yellow", alpha=0.1)
+    _fill_between(ax, np.geomspace(1, 10000, 1000), 1e-5, lambda xx: 137.0 ** 1.5 / xx, color="yellow", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(30, 1.5, "Nonperturbative at\nsmall coupling", fontsize=12, ha="center", bbox=dict(facecolor="yellow", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(0.001, 10000), lambda xx: 137.0 ** 1.5 / xx, 100, color="red", alpha=0.1)
+    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: 137.0 ** 1.5 / xx, 100, color="red", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(2700, 3, "Fully non-\nperturbative", fontsize=12, ha="center", bbox=dict(facecolor="red", edgecolor="none", alpha=0.7))
 
 def draw_nbw_regimes (ax: plt.Axes) -> None:
 
-    _fill_between(ax, np.geomspace(0.001, 10000), lambda xx: 2 * (1 + xx**2), 100, color="orange", alpha=0.1)
+    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: 2 * (1 + xx**2), 100, color="orange", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(0.22, 6, "Linear QED", fontsize=12, ha="center", bbox=dict(facecolor="orange", edgecolor="none", alpha=0.7))
-    _plot_segment(ax, np.geomspace(0.001, 10000), lambda xx: 2 * (1 + xx**2), color="orange", ls="--", lw=1.2)
+    _plot_segment(ax, np.geomspace(0.001, 10000, 1000), lambda xx: 2 * (1 + xx**2), color="orange", ls="--", lw=1.2)
     ax.text(0.12, 2.8, r"$\eta=2(1+\xi^2)$", fontsize=12, color="orange")
 
-    _fill_between(ax, np.geomspace(0.001, 10000), lambda xx: 0.5 * (1 + xx**2), lambda xx: 2 * (1 + xx**2), color="lightblue", alpha=0.1)
+    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: 0.5 * (1 + xx**2), lambda xx: 2 * (1 + xx**2), color="lightblue", edgecolor="none", linewidth=0, alpha=0.1)
     for n in [2,3,4]:
-        _plot_segment(ax, np.geomspace(0.001, 10000), lambda xx, n=n: (2.0 / n) * (1 + xx**2), color="lightblue", ls="--", lw=1.2)
+        _plot_segment(ax, np.geomspace(0.001, 10000, 1000), lambda xx, n=n: (2.0 / n) * (1 + xx**2), color="lightblue", ls="--", lw=1.2)
     ax.text(1.15, 3, "Harmonics", fontsize=12, ha="center", bbox=dict(facecolor="lightblue", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(0.001, 0.5), 0.0001, lambda xx: 0.5 * (1 + xx**2), color="purple", alpha=0.1)
+    _fill_between(ax, np.geomspace(0.001, 0.5, 1000), 0.0001, lambda xx: 0.5 * (1 + xx**2), color="purple", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(0.225, 0.013, "Multiphoton\nperturbative", fontsize=12, ha="center", bbox=dict(facecolor="purple", edgecolor="none", alpha=0.7))
     
-    _fill_between(ax, np.geomspace(3, 10000), lambda xx: 0.5 / xx, lambda xx: 0.001 / xx, color="green", alpha=0.1)
+    _fill_between(ax, np.geomspace(3, 10000, 1000), lambda xx: 0.5 / xx, 1e-5, color="green", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(10, 0.005, "Non-analytic\npair creation", fontsize=12, ha="center", bbox=dict(facecolor="green", edgecolor="none", alpha=0.7))
     
-    _fill_between(ax, np.geomspace(0.5, 10000), lambda xx: np.where(xx>3, np.maximum(1e-5, 0.5 / xx), 1e-5), lambda xx: np.minimum(0.5 * (1 + xx**2), 137.0 ** 1.5 / xx), color="yellow", alpha=0.1)
+    _fill_between(ax, np.geomspace(0.5, 10000, 1000), lambda xx: np.where(xx>3, np.maximum(1e-5, 0.5 / xx), 1e-5), lambda xx: np.minimum(0.5 * (1 + xx**2), 137.0 ** 1.5 / xx), color="yellow", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(30, 1.5, "Nonperturbative at\nsmall coupling", fontsize=12, ha="center", bbox=dict(facecolor="yellow", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(0.001, 10000), lambda xx: 137.0 ** 1.5 / xx, 100, color="red", alpha=0.08)
+    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: 137.0 ** 1.5 / xx, 100, color="red", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(2700, 3, "Fully non-\nperturbative", fontsize=12, ha="center", bbox=dict(facecolor="red", edgecolor="none", alpha=0.7))
 
 
@@ -311,18 +336,21 @@ def draw_pw_class_projections (ax: plt.Axes) -> None:
     style = {'color': '0.65', 'facealpha': 0.1, 'linestyle': '--'}
     plot_rectangle(ax, (500, 5000), (0.0115, 0.0575), label='Multi-10PW Class', **style)
 
-    labels = [
-        (100, 0.025, "CALA", 0, "0.5"),
-        (100, 0.040, "CoReLS", 0, "0.5"),
-        (100, 0.016, "ZEUS", 0, "0.5"),
-        (300, 0.034, "Apollon", 0, "0.5"),
-        (300, 0.018, "ELI", 0, "0.5"),
-        (1000, 0.026, "EP-OPAL", 0, "0.7"),
-        (1000, 0.045, "SULF", 0, "0.5"),
-        (1000, 0.015, "VULCAN", 0, "0.7"),
-        (3000, 0.04, "SEL", 0, "0.5"),
-        (3000, 0.02, "XCELS", 0, "0.7"),
-    ]
+    ax.text(6500, 0.0257, '1-5 GeV\nat 20°', rotation=90, linespacing=0.9, ha="center", va="center")
     
-    for x, y, text, rot, color in labels:
-        ax.text(x, y, text, fontsize=11, color=color, rotation=rot, ha="center", va="center")
+    labels = [
+        (89, 0.0257, "CALA"),
+        (89, 0.0440, "CoReLS"),
+        (89, 0.0150, "ZEUS"),
+        (281, 0.0385, "Apollon"),
+        (281, 0.0172, "ELI"),
+        (889, 0.0440, "SULF"),
+        (2811, 0.0440, "SEL"),
+        (1581, 0.0257, "NSF-OPAL"),
+        (1581, 0.0150, "VULCAN 20-20"),
+        # XCELS not shown for now since status unknown 
+        # and no response from corresponding authors of XCELS paper
+        # (3000, 0.02, "XCELS"),
+    ]
+    for x, y, text in labels:
+        ax.text(x, y, text, fontsize=11, color="0.5", ha="center", va="center")
