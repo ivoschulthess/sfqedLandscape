@@ -1,0 +1,31 @@
+experiment: EUXFEL
+experiment_type: undulator_based
+
+process: radiation_reaction
+
+datasets:
+  - label: EUXFEL SASE1/2
+    status: result
+
+    parameters:
+      xi: [1.65, 3.9]
+      eta: [9.5e-07, 2.08e-6]
+      chi: [1.56e-6, 8.07e-6]
+      RR: [3.43e-4, 4.19e-3]
+
+    references:
+      - doi: 10.1107/S1600577518017125
+        year: 2019
+
+  - label: EUXFEL SASE3
+    status: result
+
+    parameters:
+      xi: [4, 9]
+      eta: [5.59e-07, 1.22e-06]
+      chi: [2.23e-06, 1.1e-05]
+      RR: [4.22e-04, 4.69e-03]
+
+    references:
+      - doi: 10.1107/S1600577518017125
+        year: 2019
