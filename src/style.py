@@ -14,6 +14,7 @@ EXPERIMENT_MARKERS = {
     "gamma_laser": "v",
     "crystal": "^",
     "all_optical": "o",
+    "undulator_based": "d"
 }
 
 
