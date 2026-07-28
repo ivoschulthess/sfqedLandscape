@@ -32,6 +32,20 @@ AXES = {
         "min": 0.0003,
         "max": 10.0,
     },
+    "chi": {
+        "parameter": "chi",
+        "label": r"$\chi$",
+        "scale": "log",
+        "min": 0.0001,
+        "max": 3000.0,
+    },
+    "RR": {
+        "parameter": "RR",
+        "label": r"$\mathcal{R}$",
+        "scale": "log",
+        "min": 0.0001,
+        "max": 10.0,
+    },
 }
 
 
