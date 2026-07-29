@@ -2,9 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import to_rgba
 from matplotlib.patches import Rectangle
+from scipy.constants import physical_constants
 import yaml
 import style as stl
 
+fineStructureConstant = physical_constants['fine-structure constant'][0]
 
 ############################
 # CONFIGURATION PARAMETERS #
@@ -169,10 +171,10 @@ def draw_ncs_regimes (ax: plt.Axes) -> None:
     _fill_between(ax, np.geomspace(0.3, 1.0, 1000), 1e-5, 100, color="lightblue", edgecolor="none", linewidth=0, alpha=0.2)
     ax.text(0.55, 1.5, "Harmonics", fontsize=12, rotation=90, ha="center", bbox=dict(facecolor="lightblue", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(1, 10000, 1000), 1e-5, lambda xx: 137.0 ** 1.5 / xx, color="yellow", edgecolor="none", linewidth=0, alpha=0.1)
+    _fill_between(ax, np.geomspace(1, 10000, 1000), 1e-5, lambda xx: fineStructureConstant ** -1.5 / xx, color="yellow", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(30, 1.5, "Nonperturbative at\nsmall coupling", fontsize=12, ha="center", bbox=dict(facecolor="yellow", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: 137.0 ** 1.5 / xx, 100, color="red", edgecolor="none", linewidth=0, alpha=0.1)
+    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: fineStructureConstant ** -1.5 / xx, 100, color="red", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(2700, 3, "Fully non-\nperturbative", fontsize=12, ha="center", bbox=dict(facecolor="red", edgecolor="none", alpha=0.7))
 
 def draw_nbw_regimes (ax: plt.Axes) -> None:
@@ -193,10 +195,10 @@ def draw_nbw_regimes (ax: plt.Axes) -> None:
     _fill_between(ax, np.geomspace(3, 10000, 1000), lambda xx: 0.5 / xx, 1e-5, color="green", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(10, 0.005, "Non-analytic\npair creation", fontsize=12, ha="center", bbox=dict(facecolor="green", edgecolor="none", alpha=0.7))
     
-    _fill_between(ax, np.geomspace(0.5, 10000, 1000), lambda xx: np.where(xx>3, np.maximum(1e-5, 0.5 / xx), 1e-5), lambda xx: np.minimum(0.5 * (1 + xx**2), 137.0 ** 1.5 / xx), color="yellow", edgecolor="none", linewidth=0, alpha=0.1)
+    _fill_between(ax, np.geomspace(0.5, 10000, 1000), lambda xx: np.where(xx>3, np.maximum(1e-5, 0.5 / xx), 1e-5), lambda xx: np.minimum(0.5 * (1 + xx**2), fineStructureConstant ** -1.5 / xx), color="yellow", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(30, 1.5, "Nonperturbative at\nsmall coupling", fontsize=12, ha="center", bbox=dict(facecolor="yellow", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: 137.0 ** 1.5 / xx, 100, color="red", edgecolor="none", linewidth=0, alpha=0.1)
+    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: fineStructureConstant ** -1.5 / xx, 100, color="red", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(2700, 3, "Fully non-\nperturbative", fontsize=12, ha="center", bbox=dict(facecolor="red", edgecolor="none", alpha=0.7))
 
 
