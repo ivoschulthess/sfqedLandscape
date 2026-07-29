@@ -85,6 +85,27 @@ def _load_experiment (fName: str) -> dict:
 
 def setup_axes(ax: plt.Axes, title: str='', xaxis: str='a0', yaxis: str='eta') -> None:
 
+    """
+    Configure an SFQED parameter-space plot.
+    """
+
+    if xaxis not in AXES:
+        raise ValueError(
+            f"Unknown x-axis parameter {xaxis!r}. "
+            f"Available parameters: {', '.join(AXES)}."
+        )
+
+    if yaxis not in AXES:
+        raise ValueError(
+            f"Unknown y-axis parameter {yaxis!r}. "
+            f"Available parameters: {', '.join(AXES)}."
+        )
+
+    if xaxis == yaxis:
+        raise ValueError(
+            "The x-axis and y-axis must represent different parameters."
+        )
+    
     X = AXES[xaxis]
     Y = AXES[yaxis]
 
