@@ -87,6 +87,9 @@ def setup_axes(ax: plt.Axes, title: str='', xaxis: str='a0', yaxis: str='eta') -
 
     X = AXES[xaxis]
     Y = AXES[yaxis]
+
+    # store metadata in the axis for other setup functions
+    ax.sfqed_axes = {"x": X["parameter"], "y": Y["parameter"],}
     
     ax.set_xscale(X['scale'])
     ax.set_yscale(Y['scale'])
@@ -98,49 +101,38 @@ def setup_axes(ax: plt.Axes, title: str='', xaxis: str='a0', yaxis: str='eta') -
     if title!='':
         ax.set_title(title, fontsize=20)
 
-    xgrid = (
-        _grid_values(0.01, 0.09, 0.01)
-        + _grid_values(0.1, 0.9, 0.1)
-        + _grid_values(2, 10, 1)
-        + _grid_values(20, 100, 10)
-        + _grid_values(200, 1000, 100)
-        + _grid_values(2000, 10000, 1000)
-    )
-    ygrid = (
-        _grid_values(0.001, 0.009, 0.001)
-        + _grid_values(0.01, 0.09, 0.01)
-        + _grid_values(0.1, 0.9, 0.1)
-        + _grid_values(2, 10, 1)
-    )
-    for x in xgrid:
-        if X['min'] <= x <= X['max']:
-            ax.axvline(x, color="0.88", lw=0.4, zorder=0)
-    for y in ygrid:
-        if Y['min'] <= y <= Y['max']:
-            ax.axhline(y, color="0.88", lw=0.4, zorder=0)
+    ax.set_axisbelow(True)
+    ax.grid(which='major', color='0.8', linewidth=0.6)
+    ax.grid(which='minor', color='0.9', linewidth=0.4)
             
 def draw_common_reference_lines(ax: plt.Axes) -> None:
 
-    # vertical reference lines
-    for x, color, lw in [(1, "0.2", 1.0), (10, "0.6", 1.0), (100, "0.6", 1.0), (1000, "0.6", 1.0)]:
-        ax.axvline(x, color=color, lw=lw, zorder=0)
+    xaxis = ax.sfqed_axes["x"]
+    yaxis = ax.sfqed_axes["y"]
 
-    # horizontal reference lines
-    ax.axhline(1, color="0.2", lw=1.0, zorder=0)
+    # unity lines
+    ax.axvline(1, color="0.2", lw=1.0, zorder=1)
+    ax.axhline(1, color="0.2", lw=1.0, zorder=1)
 
     # diagonal reference lines
-    x = np.geomspace(0.001, 10000, 1000)
-    _plot_segment(ax, x, lambda xx: 137.0 ** 1.5 / xx, color="0.2", ls="--", lw=1.0, zorder=0)
-    for c, color, lw in [(0.001, "0.6", 1.0), 
-                         (0.01, "0.6", 1.0), 
-                         (0.1, "0.6", 1.0), 
-                         (1, "0.2", 1.25), 
-                         (10, "0.6", 1.0), 
-                         (100, "0.6", 1.0), 
-                         (1000, "0.6", 1.0)]:
-        _plot_segment(ax, x, lambda xx, c=c: c / xx, color=color, lw=lw, zorder=0)
+    x = np.geomspace(*ax.get_xlim(), 1000)
+    for chi, color, lw in [(0.001, "0.8", 0.6), 
+                           (0.01, "0.8", 0.6), 
+                           (0.1, "0.8", 0.6), 
+                           (1, "0.2", 1.0), 
+                           (10, "0.8", 0.6), 
+                           (100, "0.8", 0.6), 
+                           (1000, "0.8", 0.6)]:
+        _plot_segment(ax, x, lambda xx, chi=chi: chi / xx, color=color, lw=lw, zorder=1)
+
+    # fully-nonperturbative chi
+    _plot_segment(ax, x, lambda xx: fineStructureConstant ** -1.5 / xx, color="0.2", ls="--", lw=1.0, zorder=1)
+
 
 def draw_common_labels(ax: plt.Axes, nlc: bool=False) -> None:
+
+    xaxis = ax.sfqed_axes["x"]
+    yaxis = ax.sfqed_axes["y"]
     
     labels = [
         (5500, 0.38, r"$(\alpha\chi)^{2/3}=1$", -35, "0.5"),
