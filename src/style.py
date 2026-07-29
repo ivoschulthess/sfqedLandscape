@@ -30,11 +30,21 @@ STATUS_STYLES = {
     },
 }
 
-# Styles for reference lines
+# Style for reference lines
 REFERENCE = {
     "color": "0.2",
     "lw": 1.0,
     "zorder": 1,
+}
+
+# Style for reference labels
+REFERENCE_LABEL = {
+    "fontsize": 11,
+    "color": "0.5",
+    "bbox": dict(
+        facecolor="none",
+        edgecolor="none",
+    ),
 }
 
 def get_style(experiment_type, status, color):
