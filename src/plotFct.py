@@ -6,6 +6,8 @@ from scipy.constants import physical_constants
 import yaml
 import style as stl
 
+from parameters import get_contour_values
+
 fineStructureConstant = physical_constants['fine-structure constant'][0]
 
 ############################
@@ -24,22 +26,22 @@ AXES = {
         "parameter": "xi",
         "label": r"$\xi$",
         "scale": "log",
-        "min": 0.1,
-        "max": 10000.0,
+        "min": 1e-1,
+        "max": 1e4,
     },
     "eta": {
         "parameter": "eta",
         "label": r"$\eta$",
         "scale": "log",
-        "min": 0.0003,
-        "max": 10.0,
+        "min": 3e-4,
+        "max": 1e1,
     },
     "chi": {
         "parameter": "chi",
         "label": r"$\chi$",
         "scale": "log",
-        "min": 0.0001,
-        "max": 3000.0,
+        "min": 1e-4,
+        "max": 3e3,
     },
     "RR": {
         "parameter": "RR",
@@ -50,6 +52,54 @@ AXES = {
     },
 }
 
+PARAMETERS = {
+    "xi": {
+        "contour_levels": [
+            1e-2, 1e-1, 1, 10, 100, 1000, 1e4,
+        ],
+        "reference_lines": [
+            {
+                "value": 1.0,
+                "label": r"$\xi=1$",
+                "style": stl.REFERENCE,
+            },
+        ],
+    },
+
+    "eta": {
+        "contour_levels": [
+            1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3, 1e4
+        ],
+        "reference_lines": [
+            {
+                "value": 1.0,
+                "label": r"$\eta=1$",
+                "style": stl.REFERENCE,
+            },
+        ],
+    },
+
+    "chi": {
+        "contour_levels": [
+            1e-3, 1e-2, 1e-1, 1, 10, 100, 1000,
+        ],
+        "reference_lines": [
+            {
+                "value": 1.0,
+                "label": r"$\chi=1$",
+                "style": stl.REFERENCE,
+            },
+            {
+                "value": fineStructureConstant ** -1.5,
+                "label": r"$(\alpha\chi)^{2/3}=1$",
+                "style": {
+                    **stl.REFERENCE,
+                    "ls": "--",
+                },
+            },
+        ],
+    },
+}
 
 ####################
 # HELPER FUNCTIONS #
@@ -70,6 +120,47 @@ def _fill_between(ax: plt.Axes, x: np.ndarray, y1, y2, **kwargs) -> None:
     yy2 = y2(x) if callable(y2) else np.full_like(x, float(y2), dtype=float)
     mask = (yy1 > 0) & (yy2 > 0) & np.isfinite(yy1) & np.isfinite(yy2)
     ax.fill_between(x[mask], yy1[mask], yy2[mask], **kwargs)
+
+def _draw_parameter_contour(ax: plt.Axes, parameter: str, value: float, **style) -> bool:
+    """
+    Draw a contour of constant `parameter`.
+    Returns True if the contour could be drawn, otherwise False.
+    """
+
+    xaxis = ax.sfqed_axes["x"]
+    yaxis = ax.sfqed_axes["y"]
+
+    # Parameter is directly represented by the x-axis
+    if parameter == xaxis:
+        ax.axvline(value, **style)
+        return True
+
+    # Parameter is directly represented by the y-axis
+    if parameter == yaxis:
+        ax.axhline(value, **style)
+        return True
+
+    # Parameter must be derived from the two plotted axes
+    xmin, xmax = ax.get_xlim()
+    x = np.geomspace(xmin, xmax, 1000)
+
+    y = get_contour_values(
+        parameter=parameter,
+        value=value,
+        xaxis=xaxis,
+        yaxis=yaxis,
+        x=x,
+    )
+
+    if y is None:
+        return False
+
+    valid = np.isfinite(y) & (y > 0)
+    if not np.any(valid):
+        return False
+
+    ax.plot(x[valid], y[valid], **style)
+    return True
 
 def _load_experiment (fName: str) -> dict:
 
@@ -131,24 +222,28 @@ def draw_common_reference_lines(ax: plt.Axes) -> None:
     xaxis = ax.sfqed_axes["x"]
     yaxis = ax.sfqed_axes["y"]
 
-    # unity lines
-    ax.axvline(1, color="0.2", lw=1.0, zorder=1)
-    ax.axhline(1, color="0.2", lw=1.0, zorder=1)
+    for parameter, definition in PARAMETERS.items():
 
-    # diagonal reference lines
-    x = np.geomspace(*ax.get_xlim(), 1000)
-    for chi, color, lw in [(0.001, "0.8", 0.6), 
-                           (0.01, "0.8", 0.6), 
-                           (0.1, "0.8", 0.6), 
-                           (1, "0.2", 1.0), 
-                           (10, "0.8", 0.6), 
-                           (100, "0.8", 0.6), 
-                           (1000, "0.8", 0.6)]:
-        _plot_segment(ax, x, lambda xx, chi=chi: chi / xx, color=color, lw=lw, zorder=1)
+        # Add contour grid only when the parameter is not already an axis
+        if parameter not in {xaxis, yaxis}:
+            for value in definition.get("contour_levels", []):
+                _draw_parameter_contour(
+                    ax=ax,
+                    parameter=parameter,
+                    value=value,
+                    color="0.6",
+                    lw=1.0,
+                    zorder=1,
+                )
 
-    # fully-nonperturbative chi
-    _plot_segment(ax, x, lambda xx: fineStructureConstant ** -1.5 / xx, color="0.2", ls="--", lw=1.0, zorder=1)
-
+        # Draw physically meaningful lines in every representation
+        for reference in definition.get("reference_lines", []):
+            _draw_parameter_contour(
+                ax=ax,
+                parameter=parameter,
+                value=reference["value"],
+                **reference["style"],
+            )
 
 def draw_common_labels(ax: plt.Axes, nlc: bool=False) -> None:
 
