@@ -41,7 +41,7 @@ AXES = {
         "label": r"$\chi$",
         "scale": "log",
         "min": 1e-4,
-        "max": 3e3,
+        "max": 1e4,
     },
     "RR": {
         "parameter": "RR",
@@ -55,13 +55,14 @@ AXES = {
 PARAMETERS = {
     "xi": {
         "contour_levels": [
-            1e-2, 1e-1, 1, 10, 100, 1000, 1e4,
+            1e-4, 1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7
         ],
         "reference_lines": [
             {
                 "value": 1.0,
                 "label": r"$\xi=1$",
                 "style": stl.REFERENCE,
+                "label_position": 0.3
             },
         ],
     },
@@ -75,27 +76,27 @@ PARAMETERS = {
                 "value": 1.0,
                 "label": r"$\eta=1$",
                 "style": stl.REFERENCE,
+                "label_position": 0.3
             },
         ],
     },
 
     "chi": {
         "contour_levels": [
-            1e-3, 1e-2, 1e-1, 1, 10, 100, 1000,
+            1e-4, 1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3, 1e4,
         ],
         "reference_lines": [
             {
                 "value": 1.0,
                 "label": r"$\chi=1$",
                 "style": stl.REFERENCE,
+                "label_position": 0.3
             },
             {
                 "value": fineStructureConstant ** -1.5,
                 "label": r"$(\alpha\chi)^{2/3}=1$",
-                "style": {
-                    **stl.REFERENCE,
-                    "ls": "--",
-                },
+                "style": {**stl.REFERENCE, "ls": "--",},
+                "label_position": 0.3
             },
         ],
     },
@@ -105,8 +106,11 @@ PARAMETERS = {
 # HELPER FUNCTIONS #
 ####################
 
-def _grid_values(start: float, stop: float, step: float) -> list[float]:
-    return list(np.round(np.arange(start, stop + 0.5 * step, step), 12))
+def _log_interpolate(vmin: float, vmax: float, position: float) -> float:
+    return 10 ** (
+        np.log10(vmin)
+        + position * (np.log10(vmax) - np.log10(vmin))
+    )
 
 def _plot_segment(ax: plt.Axes, x: np.ndarray, y, **kwargs) -> None:
     
@@ -120,6 +124,34 @@ def _fill_between(ax: plt.Axes, x: np.ndarray, y1, y2, **kwargs) -> None:
     yy2 = y2(x) if callable(y2) else np.full_like(x, float(y2), dtype=float)
     mask = (yy1 > 0) & (yy2 > 0) & np.isfinite(yy1) & np.isfinite(yy2)
     ax.fill_between(x[mask], yy1[mask], yy2[mask], **kwargs)
+
+def _get_label_rotation(ax: plt.Axes, xvalues: np.ndarray, yvalues: np.ndarray, index: int,) -> float:
+    """
+    Return the local contour angle in display coordinates.
+    """
+
+    if len(xvalues) < 2:
+        return 0.0
+
+    step = max(1, len(xvalues) // 100)
+
+    i0 = max(0, index - step)
+    i1 = min(len(xvalues) - 1, index + step)
+
+    if i0 == i1:
+        return 0.0
+
+    points = ax.transData.transform([
+        [xvalues[i0], yvalues[i0]],
+        [xvalues[i1], yvalues[i1]],
+    ])
+
+    dx = points[1, 0] - points[0, 0]
+    dy = points[1, 1] - points[0, 1]
+
+    angle = np.degrees(np.arctan2(dy, dx))
+
+    return angle
 
 def _draw_parameter_contour(ax: plt.Axes, parameter: str, value: float, **style) -> bool:
     """
@@ -191,14 +223,14 @@ def setup_axes(ax: plt.Axes, title: str='', xaxis: str='a0', yaxis: str='eta') -
             f"Unknown y-axis parameter {yaxis!r}. "
             f"Available parameters: {', '.join(AXES)}."
         )
-
-    if xaxis == yaxis:
-        raise ValueError(
-            "The x-axis and y-axis must represent different parameters."
-        )
     
     X = AXES[xaxis]
     Y = AXES[yaxis]
+    
+    if X["parameter"] == Y["parameter"]:
+        raise ValueError(
+            "The x-axis and y-axis must represent different parameters."
+        )
 
     # store metadata in the axis for other setup functions
     ax.sfqed_axes = {"x": X["parameter"], "y": Y["parameter"],}
@@ -231,8 +263,8 @@ def draw_common_reference_lines(ax: plt.Axes) -> None:
                     ax=ax,
                     parameter=parameter,
                     value=value,
-                    color="0.6",
-                    lw=1.0,
+                    color="0.8",
+                    lw=0.6,
                     zorder=1,
                 )
 
@@ -245,26 +277,73 @@ def draw_common_reference_lines(ax: plt.Axes) -> None:
                 **reference["style"],
             )
 
-def draw_common_labels(ax: plt.Axes, nlc: bool=False) -> None:
+def draw_common_labels(ax: plt.Axes) -> None:
+    
+    xparameter = ax.sfqed_axes["x"]
+    yparameter = ax.sfqed_axes["y"]
 
-    xaxis = ax.sfqed_axes["x"]
-    yaxis = ax.sfqed_axes["y"]
-    
-    labels = [
-        (5500, 0.38, r"$(\alpha\chi)^{2/3}=1$", -35, "0.5"),
-        (2000, 0.38, r"$\chi=1000$", -35, "0.5"),
-        (200, 0.38, r"$\chi=100$", -35, "0.5"),
-        (20, 0.38, r"$\chi=10$", -35, "0.5"),
-        (2, 0.38, r"$\chi=1$", -35, "0.5"),
-        (0.2, 0.38, r"$\chi=0.1$", -35, "0.5"),
-        (0.2, 0.038, r"$\chi=0.01$", -35, "0.5"),
-        (0.2, 0.0038, r"$\chi=0.001$", -35, "0.5"),
-        (0.85, 0.58, r"$\xi=1$", 90, "0.5"),
-        (2, 1.2, r"$\eta=1$", 0, "0.5"),
-    ]
-    
-    for x, y, text, rot, color in labels:
-        ax.text(x, y, text, fontsize=11, color=color, rotation=rot, ha="center", va="center")
+    xmin, xmax = ax.get_xlim()
+    ymin, ymax = ax.get_ylim()
+
+    for parameter, definition in PARAMETERS.items():
+        for reference in definition.get("reference_lines", []):
+            label = reference.get("label")
+            label_position = reference.get("label_position")
+
+            if label is None or label_position is None:
+                continue
+            
+            # Parameter is the x-axis: vertical reference line
+            if parameter == xparameter:
+                x = reference["value"]
+                y = _log_interpolate(ymin, ymax, label_position)
+                rotation = 90.0
+                offset = (-2, 0)
+
+            # Parameter is the y-axis: horizontal reference line
+            elif parameter == yparameter:
+                x = _log_interpolate(xmin, xmax, label_position)
+                y = reference["value"]
+                rotation = 0.0
+                offset = (0, 2)
+
+            # Parameter is represented by a derived contour
+            else:
+                xvalues = np.geomspace(xmin, xmax, 1000)
+
+                yvalues = get_contour_values(
+                    parameter=parameter,
+                    value=reference["value"],
+                    xaxis=xparameter,
+                    yaxis=yparameter,
+                    x=xvalues,
+                )
+
+                if yvalues is None:
+                    continue
+
+                mask = (
+                    np.isfinite(xvalues)
+                    & np.isfinite(yvalues)
+                    & (xvalues >= xmin)
+                    & (xvalues <= xmax)
+                    & (yvalues >= ymin)
+                    & (yvalues <= ymax)
+                )
+
+                xvisible = xvalues[mask]
+                yvisible = yvalues[mask]
+
+                if len(xvisible) == 0:
+                    continue
+
+                index = round(label_position * (len(xvisible) - 1))
+                x = xvisible[index]
+                y = yvisible[index]
+                rotation = _get_label_rotation(ax, xvisible, yvisible, index,)
+                offset = (0, 2)
+
+            ax.annotate(label, xy=(x, y), xytext=offset, textcoords="offset points", rotation=rotation, rotation_mode="anchor", ha="center", va="bottom", **stl.REFERENCE_LABEL,)
 
 
 ###################
