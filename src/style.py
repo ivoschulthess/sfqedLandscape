@@ -16,7 +16,6 @@ EXPERIMENT_MARKERS = {
     "all_optical": "o",
 }
 
-
 # Line and marker filling encode the dataset status.
 STATUS_STYLES = {
     "result": {
@@ -31,7 +30,12 @@ STATUS_STYLES = {
     },
 }
 
-
+# Styles for reference lines
+REFERENCE = {
+    "color": "0.2",
+    "lw": 1.0,
+    "zorder": 1,
+}
 
 def get_style(experiment_type, status, color):
     """Return the style for one experiment dataset."""
