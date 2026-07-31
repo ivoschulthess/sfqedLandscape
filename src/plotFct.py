@@ -6,8 +6,10 @@ from scipy.constants import physical_constants
 import yaml
 import style as stl
 
-from parameters import get_contour_values
+import warnings
+warnings.simplefilter("always", UserWarning)
 
+from parameters import PARAMETER_RELATIONS, get_contour_values
 
 # fine-structure constant alpha ~1/137
 fineStructureConstant = physical_constants['fine-structure constant'][0]
@@ -501,6 +503,16 @@ def _load_experiment (fName: str) -> dict:
 
     return data
 
+def _transform_coordinates(x, values, relation):
+
+    if isinstance(x, (list, tuple)):
+        return [
+            relation(x_value, value)
+            for x_value, value in zip(x, values)
+        ]
+
+    return relation(x, values)
+
     
 ################
 # FIGURE SETUP #
@@ -722,101 +734,197 @@ def plot_experiment (ax: plt.Axes, fName: str, **kwargs: object) -> None:
         
         status = dataset['status']
         style = stl.get_style(experiment_type, status, color)
-        parameters = dataset['parameters']
 
         # merging styles where kwargs is dominant
         style = style | kwargs
 
-        plot_dataset(ax, 
-                     xi=parameters['xi'], 
-                     eta=parameters['eta'], 
-                     label=dataset['label'], 
-                     **style)
+        # add the label to the style dict
+        style = style | {'label': dataset['label']}
 
-def plot_dataset (ax: plt.Axes, xi: float|list, eta: float|list, **kwargs):
+        plot_dataset(ax, dataset, **style)
 
-    xi_range = isinstance(xi, (list, tuple))
-    eta_range = isinstance(eta, (list, tuple))
+        # try:
+        #     plot_dataset(ax, dataset, **style)
+        # except Exception as err:
+        #     warnings.warn(f"Skipping dataset '{dataset['label']}': {err}")
 
-    if not xi_range and not eta_range:
-        return plot_point(ax, xi, eta, **kwargs)
+def plot_dataset (ax: plt.Axes, dataset: dict, **style: object) -> None:
 
-    if xi_range and not eta_range:
-        return plot_horizontal_range(ax, xi, eta, **kwargs)
+    xparameter = ax.sfqed_axes["x"]
+    yparameter = ax.sfqed_axes["y"]
 
-    if not xi_range and eta_range:
-        return plot_vertical_range(ax, xi, eta, **kwargs)
+    resolved = resolve_parameters(dataset, xparameter, yparameter)
+    
+    if resolved["type"] == "point":
+        plot_point(ax, resolved, **style)
 
-    return plot_rectangle(ax, xi, eta, **kwargs)
+    elif resolved["type"] == "range":
+        plot_range(ax, resolved, **style)
 
-def plot_point(ax: plt.Axes, xi: float, eta: float, **style: object) -> None:
+    elif resolved["type"] == "area":
+        plot_area(ax, resolved, **style)
+
+        
+def resolve_parameters(dataset, xparameter, yparameter):
+    """
+    Resolve a dataset in the requested parameter plane.
+
+    Resolution is attempted in the following order:
+
+    1. Directly specified SFQED parameters
+    2. Derivation from other SFQED parameters
+    3. Derivation from experimental metadata
+
+    Returns
+    -------
+    dict
+        {
+            "type": "point" | "range" | "area",
+            "x": ...,
+            "y": ...,
+        }
+
+    Raises
+    ------
+    ValueError
+        If none of the available methods can resolve the parameters.
+    """
+
+    resolvers = (
+        get_direct_parameters,
+        derive_from_parameters,
+        derive_from_metadata,
+    )
+
+    for resolver in resolvers:
+        resolved = resolver(dataset, xparameter, yparameter)
+
+        if resolved:
+            if resolved["type"] == "range":
+                if len(resolved["x"]) != len(resolved["y"]):
+                    raise ValueError(
+                        "Resolved range must contain equally sized x and y arrays."
+                    )
+            return resolved
+
+    raise ValueError(
+        f"Could not resolve ({xparameter}, {yparameter}) for dataset "
+        f"{dataset.get('label', '<unnamed>')!r}."
+    )
+
+def get_direct_parameters(dataset, xparameter, yparameter):
+    parameters = dataset.get("parameters", {})
+
+    if xparameter not in parameters or yparameter not in parameters:
+        return {}
+
+    x = parameters[xparameter]
+    y = parameters[yparameter]
+
+    x_is_range = isinstance(x, (list, tuple))
+    y_is_range = isinstance(y, (list, tuple))
+
+    if x_is_range and y_is_range:
+        return {"type": "area", 
+                "x": [x[0], x[1], x[1], x[0]], 
+                "y": [y[0], y[0], y[1], y[1]]}
+    
+    elif x_is_range and not y_is_range:
+        return {"type": "range", "x": x, "y": [y]*len(x)}
+
+    elif not x_is_range and y_is_range:
+        return {"type": "range", "x": [x]*len(y), "y": y}
+    
+    else:
+        return {"type": "point", "x": x, "y": y}
+
+def derive_from_parameters(dataset: dict, xparameter: str, yparameter: str) -> dict:
+
+    for (constant_parameter, source_parameter, target_parameter), relation in PARAMETER_RELATIONS.items():
+
+        # Keep the requested x parameter and derive y.
+        if (source_parameter==xparameter and target_parameter==yparameter):
+            resolved = get_direct_parameters(dataset, source_parameter, constant_parameter)
+            if resolved:
+                return {"type": resolved["type"],
+                        "x": resolved["x"],
+                        "y": _transform_coordinates(resolved["x"], resolved["y"], relation)}
+
+        # Keep the requested y parameter and derive x.
+        if (source_parameter==yparameter and target_parameter==xparameter):
+            resolved = get_direct_parameters(dataset, source_parameter, constant_parameter)
+            if resolved:
+                return {"type": resolved["type"],
+                        "x": _transform_coordinates(resolved["x"], resolved["y"], relation),
+                        "y": resolved["x"]}
+
+    return {}
+
+def derive_from_metadata(dataset, xparameter, yparameter):
+    return {}
+    
+def plot_point(ax: plt.Axes, resolved: dict, **style: object) -> None:
 
     # keys to change the style of the marker
     keys = ["marker", "markersize", "color", "markerfacecolor",
             "markeredgecolor", "label", "zorder"]
+
+    x = resolved["x"]
+    y = resolved["y"]
     
     # add the marker with the given style
-    ax.plot(xi, eta, linestyle="none",
+    ax.plot(x, y, linestyle="none",
             **{k: v for k, v in style.items() if k in keys})
 
     # add label if given
     if 'label' in style:
-        x_label, y_label = range_label_anchor(xi, eta, style.get('labelposition'))
+        x_label, y_label = range_label_anchor(x, y, style.get('labelposition'))
         add_label(ax, x_label, y_label, label=style.get('label'), labelposition=style.get('labelposition'))
 
-def plot_horizontal_range(ax: plt.Axes, xi: list, eta: float, **style: object) -> None:
+def plot_range(ax: plt.Axes, resolved: dict, **style: object) -> None:
 
-    # keys to change the style of the horizontal line
+    # keys to change the style of the line
     keys = ["color", "linestyle", "linewidth", "label", "zorder"]
+    
+    x = resolved["x"]
+    y = resolved["y"]
 
-    # add the horizontal line with the given style
-    ax.hlines(eta, xi[0], xi[1],
-              **{k: v for k, v in style.items() if k in keys})
+    ax.plot(x, y, **{k: v for k, v in style.items() if k in keys})
     
     # add label if given
     if 'label' in style:
-        x_label, y_label = range_label_anchor(xi, eta, style.get('labelposition'))
+        x_label, y_label = range_label_anchor(x, y, style.get('labelposition'))
         add_label(ax, x_label, y_label, label=style.get('label'), labelposition=style.get('labelposition'))
-
-def plot_vertical_range(ax: plt.Axes, xi: float, eta: list, **style: object) -> None:
-
-    # keys to change the style of the vertical line
-    keys = ["color", "linestyle", "linewidth", "label", "zorder"]
-
-    # add the vertical line with the given style
-    ax.vlines(xi, eta[0], eta[1],
-              **{k: v for k, v in style.items() if k in keys})
     
-    # add label if given
-    if 'label' in style:
-        x_label, y_label = range_label_anchor(xi, eta, style.get('labelposition'))
-        add_label(ax, x_label, y_label, label=style.get('label'), labelposition=style.get('labelposition'))
+def plot_area(ax: plt.Axes, resolved: dict, **style: object) -> None:
 
-def plot_rectangle(ax: plt.Axes, xi: list, eta: list, **style: object) -> None:
+    x = resolved["x"]
+    y = resolved["y"]
 
-    # keys to change the style of the rectangle
     keys = ["label", "zorder", "linestyle"]
 
-    color = style.pop('color', 'black')
-    facecolor = to_rgba(color, style.pop('facealpha', 1.0))
+    color = style.get("color", "black")
+    facecolor = to_rgba(color, style.get("facealpha", 1.0))
     edgecolor = to_rgba(color, 1.0)
 
-    # add the rectangle with the given style
-    ax.fill_between(xi, eta[0], eta[1], facecolor=facecolor, edgecolor=edgecolor,
-                    **{k: v for k, v in style.items() if k in keys})
+    ax.fill(x, y, facecolor=facecolor, edgecolor=edgecolor,
+        **{key: value for key, value in style.items() if key in keys})
 
-    # add label if given
     if 'label' in style:
-        x_label, y_label = range_label_anchor(xi, eta, style.get('labelposition'))
-        add_label(ax, x_label, y_label, label=style.get('label'), labelposition=style.get('labelposition'))
+        x_label, y_label = range_label_anchor(x, y, style.get("labelposition"))
+        add_label(ax, x_label, y_label, label=style.get("label"),
+            labelposition=style.get("labelposition"))
 
-def range_label_anchor(xi: float|list, eta: float|list, labelposition: str|None) -> tuple:
+def range_label_anchor(x: float|list, y: float|list, labelposition: str|None) -> tuple:
 
     if labelposition==None:
         labelposition = 'below'
-    
-    x0, x1 = xi if isinstance(xi, (list, tuple)) else (xi, xi)
-    y0, y1 = eta if isinstance(eta, (list, tuple)) else (eta, eta)
+
+    x_values = np.atleast_1d(x)
+    y_values = np.atleast_1d(y)
+
+    x0, x1 = np.min(x_values), np.max(x_values)
+    y0, y1 = np.min(y_values), np.max(y_values)
 
     # Geometric centres for logarithmic axes
     xc = (x0 * x1) ** 0.5
@@ -853,10 +961,18 @@ def draw_pw_class_projections (ax: plt.Axes) -> None:
     - xi/a0 is the range of typical values at these peak power
     - eta is the range for particle beams between 1-5 GeV colliding at 20 degrees
     '''
+    xparameter = ax.sfqed_axes["x"]
+    yparameter = ax.sfqed_axes["y"]
+
     style = {'color': '0.35', 'facealpha': 0.1, 'linestyle': '--'}
-    plot_rectangle(ax, (50, 500), (0.0115, 0.0575), label='Multi-PW Class', **style)
+    projection = {'label': 'Multi-PW Class', 'parameters': {'xi': [50, 500], 'eta': [0.0115, 0.0575]}}
+    resolved = resolve_parameters(projection, xparameter, yparameter)
+    plot_area(ax, resolved, label=projection['label'], **style)
+
     style = {'color': '0.65', 'facealpha': 0.1, 'linestyle': '--'}
-    plot_rectangle(ax, (500, 5000), (0.0115, 0.0575), label='Multi-10PW Class', **style)
+    projection = {'label': 'Multi-PW Class', 'parameters': {'xi': [500, 5000], 'eta': [0.0115, 0.0575]}}
+    resolved = resolve_parameters(projection, xparameter, yparameter)
+    plot_area(ax, resolved, label=projection['label'], **style)
 
     ax.text(6500, 0.0257, '1-5 GeV\nat 20°', rotation=90, linespacing=0.9, ha="center", va="center")
     
