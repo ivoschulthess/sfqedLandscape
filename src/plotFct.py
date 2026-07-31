@@ -8,7 +8,12 @@ import style as stl
 
 from parameters import get_contour_values
 
+
+# fine-structure constant alpha ~1/137
 fineStructureConstant = physical_constants['fine-structure constant'][0]
+
+# chi value where QED becomes fully nonperturbative (alpha*chi^(2/3)=1)
+chi_nonperturbative = fineStructureConstant ** (-1.5)
 
 ############################
 # CONFIGURATION PARAMETERS #
@@ -93,7 +98,7 @@ PARAMETERS = {
                 "label_position": 0.3
             },
             {
-                "value": fineStructureConstant ** -1.5,
+                "value": chi_nonperturbative,
                 "label": r"$(\alpha\chi)^{2/3}=1$",
                 "style": {**stl.REFERENCE, "ls": "--",},
                 "label_position": 0.3
@@ -101,6 +106,169 @@ PARAMETERS = {
         ],
     },
 }
+
+
+NCS_REGIMES = [
+    {
+        "label": "Linear QED",
+
+        "condition": lambda p: (
+            (p["xi"] < 0.3)
+            & (p["chi"] < chi_nonperturbative)
+        ),
+
+        "label_positions": {
+            ("xi", "eta"): {
+                "x": 0.18,
+                "y": 3,
+                "rotation": 90,
+            },
+            ("xi", "chi"): {
+                "x": 0.18,
+                "y": 100.0,
+                "rotation": 90,
+            },
+            ("eta", "chi"): {
+                "x": 3,
+                "y": 0.001,
+                "rotation": 0,
+            },
+        },
+
+        "style": {
+            "color": "orange",
+            "alpha": 0.1,
+        },
+
+        "label_style": {
+            "bbox": {
+                "facecolor": "orange",
+                "edgecolor": "none",
+                "alpha": 0.7,
+            },
+        },
+    },
+
+    {
+        "label": "Harmonics",
+
+        "condition": lambda p: (
+            (p["xi"] >= 0.3)
+            & (p["xi"] < 1.0)
+            & (p["chi"] < chi_nonperturbative)
+        ),
+
+        "label_positions": {
+            ("xi", "eta"): {
+                "x": 0.55,
+                "y": 3,
+                "rotation": 90,
+            },
+            ("xi", "chi"): {
+                "x": 0.55,
+                "y": 100.0,
+                "rotation": 90,
+            },
+            ("eta", "chi"): {
+                "x": 3,
+                "y": 2.0,
+                "rotation": 0,
+            },
+        },
+
+        "style": {
+            "color": "lightblue",
+            "alpha": 0.2,
+        },
+
+        "label_style": {
+            "bbox": {
+                "facecolor": "lightblue",
+                "edgecolor": "none",
+                "alpha": 0.7,
+            },
+        },
+    },
+
+    {
+        "label": "Nonperturbative at\nsmall coupling",
+
+        "condition": lambda p: (
+            (p["xi"] >= 1.0)
+            & (p["chi"] < chi_nonperturbative)
+        ),
+
+        "label_positions": {
+            ("xi", "eta"): {
+                "x": 30.0,
+                "y": 3,
+                "rotation": 0,
+            },
+            ("xi", "chi"): {
+                "x": 10.0,
+                "y": 200.0,
+                "rotation": 0,
+            },
+            ("eta", "chi"): {
+                "x": 0.25,
+                "y": 100.0,
+                "rotation": 0,
+            },
+        },
+
+        "style": {
+            "color": "yellow",
+            "alpha": 0.1,
+        },
+
+        "label_style": {
+            "bbox": {
+                "facecolor": "yellow",
+                "edgecolor": "none",
+                "alpha": 0.7,
+            },
+        },
+    },
+
+    {
+        "label": "Fully non-\nperturbative",
+
+        "condition": lambda p: (
+            p["chi"] >= chi_nonperturbative
+        ),
+
+        "label_positions": {
+            ("xi", "eta"): {
+                "x": 2700.0,
+                "y": 3.0,
+                "rotation": 0,
+            },
+            ("xi", "chi"): {
+                "x": 20.0,
+                "y": 4000.0,
+                "rotation": 0,
+            },
+            ("eta", "chi"): {
+                "x": 0.1,
+                "y": 4000.0,
+                "rotation": 0,
+            },
+        },
+
+        "style": {
+            "color": "red",
+            "alpha": 0.1,
+        },
+
+        "label_style": {
+            "bbox": {
+                "facecolor": "red",
+                "edgecolor": "none",
+                "alpha": 0.7,
+            },
+        },
+    },
+]
 
 ####################
 # HELPER FUNCTIONS #
@@ -194,6 +362,138 @@ def _draw_parameter_contour(ax: plt.Axes, parameter: str, value: float, **style)
     ax.plot(x[valid], y[valid], **style)
     return True
 
+def _get_parameter_grid(
+    parameter: str,
+    xparameter: str,
+    yparameter: str,
+    xvalues: np.ndarray,
+    yvalues: np.ndarray,
+) -> np.ndarray:
+    """Return one physical parameter on the current two-dimensional grid."""
+
+    if parameter == xparameter:
+        return xvalues
+
+    if parameter == yparameter:
+        return yvalues
+
+    available = {
+        xparameter: xvalues,
+        yparameter: yvalues,
+    }
+
+    if parameter == "chi":
+        return available["xi"] * available["eta"]
+
+    if parameter == "xi":
+        return available["chi"] / available["eta"]
+
+    if parameter == "eta":
+        return available["chi"] / available["xi"]
+
+    raise ValueError(f"Cannot calculate parameter {parameter!r}")
+
+def _get_regime_label_position(
+    regime: dict,
+    xparameter: str,
+    yparameter: str,
+) -> dict | None:
+    positions = regime.get("label_positions", {})
+
+    key = (xparameter, yparameter)
+
+    if key in positions:
+        return positions[key]
+
+    reversed_key = (yparameter, xparameter)
+
+    if reversed_key not in positions:
+        return None
+
+    reversed_position = positions[reversed_key]
+
+    position = dict(reversed_position)
+
+    position["x"] = reversed_position["y"]
+    position["y"] = reversed_position["x"]
+
+    # Rotation is defined in display coordinates.
+    rotation = reversed_position.get("rotation", 0.0)
+    position["rotation"] = 90.0 - rotation
+
+    return position
+
+def _draw_regime_label(
+    ax: plt.Axes,
+    regime: dict,
+    xparameter: str,
+    yparameter: str,
+) -> None:
+    position = _get_regime_label_position(
+        regime,
+        xparameter,
+        yparameter,
+    )
+
+    if position is None:
+        return
+
+    x = position["x"]
+    y = position["y"]
+
+    xmin, xmax = sorted(ax.get_xlim())
+    ymin, ymax = sorted(ax.get_ylim())
+
+    if not (
+        xmin <= x <= xmax
+        and ymin <= y <= ymax
+    ):
+        return
+
+    label_style = regime.get("label_style", {})
+
+    ax.annotate(
+        regime["label"],
+        xy=(x, y),
+        xytext=position.get(
+            "offset",
+            label_style.get("offset", (0, 0)),
+        ),
+        textcoords="offset points",
+        rotation=position.get(
+            "rotation",
+            label_style.get("rotation", 0),
+        ),
+        rotation_mode="anchor",
+        ha=position.get(
+            "ha",
+            label_style.get("ha", "center"),
+        ),
+        va=position.get(
+            "va",
+            label_style.get("va", "center"),
+        ),
+        fontsize=label_style.get("fontsize", 12),
+        bbox=label_style.get("bbox"),
+        zorder=label_style.get("zorder", 2),
+    )
+
+def _complete_parameter_point(
+    point: dict[str, float],
+) -> dict[str, float]:
+    point = dict(point)
+
+    if "chi" not in point and "xi" in point and "eta" in point:
+        point["chi"] = point["xi"] * point["eta"]
+
+    elif "xi" not in point and "chi" in point and "eta" in point:
+        point["xi"] = point["chi"] / point["eta"]
+
+    elif "eta" not in point and "chi" in point and "xi" in point:
+        point["eta"] = point["chi"] / point["xi"]
+
+    return point
+    
 def _load_experiment (fName: str) -> dict:
 
     with open(fName) as file:
@@ -350,19 +650,38 @@ def draw_common_labels(ax: plt.Axes) -> None:
 # PHYSICS REGIMES #
 ###################
 
-def draw_ncs_regimes (ax: plt.Axes) -> None:
+def draw_ncs_regimes(ax: plt.Axes, resolution: int=1000) -> None:
     
-    _fill_between(ax, np.geomspace(0.01, 0.3, 1000), 1e-4, 10, color="orange", edgecolor="none", linewidth=0, alpha=0.1)
-    ax.text(0.18, 1.5, "Linear QED", fontsize=12, rotation=90, ha="center", bbox=dict(facecolor="orange", edgecolor="none", alpha=0.7))
+    xparameter = ax.sfqed_axes["x"]
+    yparameter = ax.sfqed_axes["y"]
 
-    _fill_between(ax, np.geomspace(0.3, 1.0, 1000), 1e-5, 100, color="lightblue", edgecolor="none", linewidth=0, alpha=0.2)
-    ax.text(0.55, 1.5, "Harmonics", fontsize=12, rotation=90, ha="center", bbox=dict(facecolor="lightblue", edgecolor="none", alpha=0.7))
+    xmin, xmax = sorted(ax.get_xlim())
+    ymin, ymax = sorted(ax.get_ylim())
 
-    _fill_between(ax, np.geomspace(1, 10000, 1000), 1e-5, lambda xx: fineStructureConstant ** -1.5 / xx, color="yellow", edgecolor="none", linewidth=0, alpha=0.1)
-    ax.text(30, 1.5, "Nonperturbative at\nsmall coupling", fontsize=12, ha="center", bbox=dict(facecolor="yellow", edgecolor="none", alpha=0.7))
+    x = np.geomspace(xmin, xmax, resolution)
+    y = np.geomspace(ymin, ymax, resolution)
 
-    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: fineStructureConstant ** -1.5 / xx, 100, color="red", edgecolor="none", linewidth=0, alpha=0.1)
-    ax.text(2700, 3, "Fully non-\nperturbative", fontsize=12, ha="center", bbox=dict(facecolor="red", edgecolor="none", alpha=0.7))
+    xx, yy = np.meshgrid(x, y)
+
+    parameters = {
+        parameter: _get_parameter_grid(
+            parameter, xparameter, yparameter, xx, yy)
+        for parameter in ("xi", "eta", "chi")
+    }
+
+    for regime in NCS_REGIMES:
+        mask = regime["condition"](parameters)
+
+        values = np.where(mask, 1.0, np.nan)
+
+        ax.contourf(xx, yy, values, levels=[0.5, 1.5],
+            colors=[regime["style"]["color"]],
+            alpha=regime["style"].get("alpha", 1.0),
+            antialiased=False,
+            zorder=regime["style"].get("zorder", -20),
+        )
+
+        _draw_regime_label(ax, regime, xparameter, yparameter)
 
 def draw_nbw_regimes (ax: plt.Axes) -> None:
 
@@ -382,10 +701,10 @@ def draw_nbw_regimes (ax: plt.Axes) -> None:
     _fill_between(ax, np.geomspace(3, 10000, 1000), lambda xx: 0.5 / xx, 1e-5, color="green", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(10, 0.005, "Non-analytic\npair creation", fontsize=12, ha="center", bbox=dict(facecolor="green", edgecolor="none", alpha=0.7))
     
-    _fill_between(ax, np.geomspace(0.5, 10000, 1000), lambda xx: np.where(xx>3, np.maximum(1e-5, 0.5 / xx), 1e-5), lambda xx: np.minimum(0.5 * (1 + xx**2), fineStructureConstant ** -1.5 / xx), color="yellow", edgecolor="none", linewidth=0, alpha=0.1)
+    _fill_between(ax, np.geomspace(0.5, 10000, 1000), lambda xx: np.where(xx>3, np.maximum(1e-5, 0.5 / xx), 1e-5), lambda xx: np.minimum(0.5 * (1 + xx**2), chi_nonperturbative / xx), color="yellow", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(30, 1.5, "Nonperturbative at\nsmall coupling", fontsize=12, ha="center", bbox=dict(facecolor="yellow", edgecolor="none", alpha=0.7))
 
-    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: fineStructureConstant ** -1.5 / xx, 100, color="red", edgecolor="none", linewidth=0, alpha=0.1)
+    _fill_between(ax, np.geomspace(0.001, 10000, 1000), lambda xx: chi_nonperturbative / xx, 100, color="red", edgecolor="none", linewidth=0, alpha=0.1)
     ax.text(2700, 3, "Fully non-\nperturbative", fontsize=12, ha="center", bbox=dict(facecolor="red", edgecolor="none", alpha=0.7))
 
 
