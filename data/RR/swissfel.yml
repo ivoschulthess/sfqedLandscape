@@ -1,0 +1,27 @@
+experiment: SwissFEL
+experiment_type: undulator_based
+
+process: radiation_reaction
+
+datasets:
+  - label: Aramis
+    status: result
+    parameters:
+      xi: 1.2
+      eta: [6.65e-7, 1.84e-6]
+      chi: [7.97e-7, 2.20e-6]
+      RR: [9.33e-5, 2.58e-4]
+    references:
+      - url: https://www.dora.lib4ri.ch/psi/item/psi:41664
+        year: 2012
+
+  - label: Athos
+    status: result
+    parameters:
+      xi: [0.9, 3.5]
+      eta: [2.97e-07, 4.04e-07]
+      chi: [2.67e-07, 1.41e-06]
+      RR: [8.64e-06, 1.78e-04]
+    references:
+      - url: https://www.dora.lib4ri.ch/psi/item/psi:41664
+        year: 2012
