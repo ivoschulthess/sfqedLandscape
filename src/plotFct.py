@@ -346,11 +346,9 @@ def draw_pw_class_projections (ax: plt.Axes) -> None:
         (281, 0.0172, "ELI"),
         (889, 0.0440, "SULF"),
         (2811, 0.0440, "SEL"),
-        (1581, 0.0257, "NSF-OPAL"),
+        (889, 0.0257, "NSF-OPAL"),
+        (2811, 0.0257, "XCELS"),
         (1581, 0.0150, "VULCAN 20-20"),
-        # XCELS not shown for now since status unknown 
-        # and no response from corresponding authors of XCELS paper
-        # (3000, 0.02, "XCELS"),
     ]
     for x, y, text in labels:
         ax.text(x, y, text, fontsize=11, color="0.5", ha="center", va="center")
